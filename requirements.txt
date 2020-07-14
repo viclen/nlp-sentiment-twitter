@@ -1,3 +1,2 @@
-tensorflow >= 1.11.0   # CPU Version of TensorFlow.
-python-twitter
-# tensorflow-gpu  >= 1.11.0  # GPU version of TensorFlow.
+tf-nightly
+tf-models-nightly

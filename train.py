@@ -72,6 +72,10 @@ type_s1 = tf.zeros_like(sentence1)
 type_s2 = tf.ones_like(sentence2)
 input_type_ids = tf.concat([type_cls, type_s1, type_s2], axis=-1).to_tensor()
 
+def encode_sentence(s, tokenizer):
+   tokens = list(tokenizer.tokenize(s))
+   tokens.append('[SEP]')
+   return tokenizer.convert_tokens_to_ids(tokens)
 
 def bert_encode(glue_dict, tokenizer):
     num_examples = len(glue_dict["sentence1"])
