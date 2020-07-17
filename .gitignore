@@ -1,2 +1,2 @@
 *.csv
-save_model/*
+saved_model
