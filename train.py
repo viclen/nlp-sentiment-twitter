@@ -16,7 +16,6 @@ import matplotlib.pyplot as plt
 import tensorflow as tf
 import tensorflow_hub as hub
 import tensorflow_datasets as tfds
-
 import json
 
 tfds.disable_progress_bar()
@@ -72,10 +71,12 @@ type_s1 = tf.zeros_like(sentence1)
 type_s2 = tf.ones_like(sentence2)
 input_type_ids = tf.concat([type_cls, type_s1, type_s2], axis=-1).to_tensor()
 
+
 def encode_sentence(s, tokenizer):
-   tokens = list(tokenizer.tokenize(s))
-   tokens.append('[SEP]')
-   return tokenizer.convert_tokens_to_ids(tokens)
+    tokens = list(tokenizer.tokenize(s))
+    tokens.append('[SEP]')
+    return tokenizer.convert_tokens_to_ids(tokens)
+
 
 def bert_encode(glue_dict, tokenizer):
     num_examples = len(glue_dict["sentence1"])
@@ -155,28 +156,33 @@ warmup_steps = int(epochs * train_data_size * 0.1 / batch_size)
 
 # creates an optimizer with learning rate schedule
 optimizer = nlp.optimization.create_optimizer(
-    2e-5, num_train_steps=num_train_steps, num_warmup_steps=warmup_steps)
+    2e-5, num_train_steps=num_train_steps, num_warmup_steps=warmup_steps
+)
 
-metrics = [tf.keras.metrics.SparseCategoricalAccuracy('accuracy', dtype=tf.float32)]
+metrics = [tf.keras.metrics.SparseCategoricalAccuracy(
+    'accuracy', dtype=tf.float32
+)]
 loss = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True)
 
 bert_classifier.compile(
     optimizer=optimizer,
     loss=loss,
-    metrics=metrics)
+    metrics=metrics
+)
 
 bert_classifier.fit(
-      glue_train, glue_train_labels,
-      validation_data=(glue_validation, glue_validation_labels),
-      batch_size=32,
-      epochs=epochs)
+    glue_train, glue_train_labels,
+    validation_data=(glue_validation, glue_validation_labels),
+    batch_size=32,
+    epochs=epochs
+)
 
 my_examples = bert_encode(
-    glue_dict = {
-        'sentence1':[
+    glue_dict={
+        'sentence1': [
             'The rain in Spain falls mainly on the plain.',
             'Look I fine tuned BERT.'],
-        'sentence2':[
+        'sentence2': [
             'It mostly rains on the flat lands of Spain.',
             'Is it working? This does not match.']
     },
@@ -188,7 +194,7 @@ result = tf.argmax(result).numpy()
 
 np.array(info.features['label'].names)[result]
 
-export_dir='./saved_model'
+export_dir = './saved_model'
 tf.saved_model.save(bert_classifier, export_dir=export_dir)
 
 reloaded = tf.saved_model.load(export_dir)
@@ -202,4 +208,3 @@ original_result = bert_classifier(my_examples, training=False)
 print(original_result.numpy())
 print()
 print(reloaded_result.numpy())
-
